@@ -4,16 +4,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import com.techqwerty.employeeservice.dto.APIResponseDto;
 import com.techqwerty.employeeservice.dto.DepartmentDto;
 import com.techqwerty.employeeservice.dto.EmployeeDto;
+import com.techqwerty.employeeservice.dto.OrganisationDto;
 import com.techqwerty.employeeservice.entity.Employee;
 import com.techqwerty.employeeservice.mapper.EmployeeMapper;
 import com.techqwerty.employeeservice.repository.EmployeeRepository;
 import com.techqwerty.employeeservice.service.APIClient;
 import com.techqwerty.employeeservice.service.EmployeeService;
-
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AllArgsConstructor;
 
@@ -53,6 +52,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                .bodyToMono(DepartmentDto.class)
                .block();
 
+       OrganisationDto organisationDto = webClient.get()
+               .uri("http://localhost:8083/api/oragnisations/" + employee.getOrganisationCode())
+               .retrieve()
+               .bodyToMono(OrganisationDto.class)
+               .block();
+
       //  DepartmentDto departmentDto = apiClient.getDepartment(employee.getDepartmentCode());
 
         EmployeeDto employeeDto = EmployeeMapper.mapToEmployeeDto(employee);
@@ -60,6 +65,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         APIResponseDto apiResponseDto = new APIResponseDto();
         apiResponseDto.setEmployee(employeeDto);
         apiResponseDto.setDepartment(departmentDto);
+        apiResponseDto.setOrganisation(organisationDto);
 
         return apiResponseDto;
     }
